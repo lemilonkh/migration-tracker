@@ -52,7 +52,7 @@ export async function action({ request }: ActionArgs) {
   return redirect(`/migrations/${migration.id}`);
 }
 
-export default function NewNotePage() {
+export default function NewMigrationPage() {
   const actionData = useActionData<typeof action>();
   const titleRef = React.useRef<HTMLInputElement>(null);
   const bodyRef = React.useRef<HTMLTextAreaElement>(null);
