@@ -40,8 +40,8 @@ model Migration {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId String
 
-  species     Species @relation(fields: [migrationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  migrationId String  @unique
+  species     Species @relation(fields: [speciesId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  speciesId   String  @unique
 
   steps MigrationStep[]
 }
