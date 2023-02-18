@@ -7,7 +7,7 @@ export type { User } from "@prisma/client";
 
 export enum UserRole {
   Citizen = "CITIZEN",
-  Biologies = "BIOLOGIST",
+  Biologist = "BIOLOGIST",
 }
 
 export async function getUserById(id: User["id"]) {
