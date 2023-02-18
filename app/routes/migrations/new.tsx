@@ -22,21 +22,21 @@ export async function action({ request }: ActionArgs) {
 
   if (typeof title !== "string" || title.length === 0) {
     return json(
-      { errors: { title: "Title is required", body: null, species: null } },
+      { errors: { title: "Title is required", description: null, species: null } },
       { status: 400 }
     );
   }
 
   if (typeof description !== "string" || description.length === 0) {
     return json(
-      { errors: { title: null, body: "Description is required", species: null } },
+      { errors: { title: null, description: "Description is required", species: null } },
       { status: 400 }
     );
   }
 
   if (typeof species !== "string" || species.length === 0) {
     return json(
-      { errors: { title: null, body: null, species: "Species is required" } },
+      { errors: { title: null, description: null, species: "Species is required" } },
       { status: 400 }
     );
   }
@@ -55,13 +55,16 @@ export async function action({ request }: ActionArgs) {
 export default function NewMigrationPage() {
   const actionData = useActionData<typeof action>();
   const titleRef = React.useRef<HTMLInputElement>(null);
-  const bodyRef = React.useRef<HTMLTextAreaElement>(null);
+  const speciesRef = React.useRef<HTMLInputElement>(null);
+  const descriptionRef = React.useRef<HTMLTextAreaElement>(null);
 
   React.useEffect(() => {
     if (actionData?.errors?.title) {
       titleRef.current?.focus();
-    } else if (actionData?.errors?.body) {
-      bodyRef.current?.focus();
+    } else if (actionData?.errors?.description) {
+      descriptionRef.current?.focus();
+    } else if (actionData?.errors?.species) {
+      speciesRef.current?.focus();
     }
   }, [actionData]);
 
@@ -97,21 +100,41 @@ export default function NewMigrationPage() {
 
       <div>
         <label className="flex w-full flex-col gap-1">
-          <span>Description: </span>
-          <textarea
-            ref={bodyRef}
-            name="body"
-            rows={8}
-            className="w-full flex-1 rounded-md border-2 border-blue-500 py-2 px-3 text-lg leading-6"
-            aria-invalid={actionData?.errors?.body ? true : undefined}
+          <span>Species: </span>
+          <input
+            ref={speciesRef}
+            name="species"
+            className="flex-1 rounded-md border-2 border-blue-500 px-3 text-lg leading-loose"
+            aria-invalid={actionData?.errors?.species ? true : undefined}
             aria-errormessage={
-              actionData?.errors?.body ? "body-error" : undefined
+              actionData?.errors?.species ? "species-error" : undefined
             }
           />
         </label>
-        {actionData?.errors?.body && (
-          <div className="pt-1 text-red-700" id="body-error">
-            {actionData.errors.body}
+        {actionData?.errors?.species && (
+          <div className="pt-1 text-red-700" id="species-error">
+            {actionData.errors.species}
+          </div>
+        )}
+      </div>
+
+      <div>
+        <label className="flex w-full flex-col gap-1">
+          <span>Description: </span>
+          <textarea
+            ref={descriptionRef}
+            name="description"
+            rows={8}
+            className="w-full flex-1 rounded-md border-2 border-blue-500 py-2 px-3 text-lg leading-6"
+            aria-invalid={actionData?.errors?.description ? true : undefined}
+            aria-errormessage={
+              actionData?.errors?.description ? "description-error" : undefined
+            }
+          />
+        </label>
+        {actionData?.errors?.description && (
+          <div className="pt-1 text-red-700" id="description-error">
+            {actionData.errors.description}
           </div>
         )}
       </div>
