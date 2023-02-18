@@ -11,7 +11,14 @@ export function getMigration({
   userId: User["id"];
 }) {
   return prisma.migration.findFirst({
-    select: { id: true, description: true, title: true },
+    include: {
+      steps: {
+        include: {
+          place: true,
+        }
+      },
+      user: true,
+    },
     where: { id, userId },
   });
 }
