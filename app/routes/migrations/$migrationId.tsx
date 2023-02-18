@@ -36,7 +36,10 @@ export default function MigrationDetailsPage() {
       <h3 className="text-2xl font-bold">{data.migration.title}</h3>
       <p className="py-6">{data.migration.description}</p>
       {data.migration.imageUrl ?
-        <img src={data.migration.imageUrl} alt={data.migration.title} className="rounded-lg" />
+        <img
+          src={data.migration.imageUrl}
+          alt={data.migration.title}
+          className="rounded-lg w-full md:max-w-md" />
         : ""
       }
       <h4 className="text-xl font-bold my-3">Migration steps</h4>
