@@ -69,3 +69,9 @@ export function useUser(): User {
 export function validateEmail(email: unknown): email is string {
   return typeof email === "string" && email.length > 3 && email.includes("@");
 }
+
+export function enumFromStringValue<T>(enm: { [s: string]: T }, value: string): T | undefined {
+  return (Object.values(enm) as unknown as string[]).includes(value)
+    ? value as unknown as T
+    : undefined;
+}
