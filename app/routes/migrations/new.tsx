@@ -3,7 +3,7 @@ import { json, redirect } from "@remix-run/node";
 import { Form, useActionData } from "@remix-run/react";
 import * as React from "react";
 
-import { createNote } from "~/models/note.server";
+import { createMigration } from "~/models/migration.server";
 import { requireUserId } from "~/session.server";
 
 export async function action({ request }: ActionArgs) {
@@ -11,7 +11,7 @@ export async function action({ request }: ActionArgs) {
 
   const formData = await request.formData();
   const title = formData.get("title");
-  const body = formData.get("body");
+  const description = formData.get("description");
 
   if (typeof title !== "string" || title.length === 0) {
     return json(
@@ -20,16 +20,28 @@ export async function action({ request }: ActionArgs) {
     );
   }
 
-  if (typeof body !== "string" || body.length === 0) {
+  if (typeof description !== "string" || description.length === 0) {
     return json(
-      { errors: { title: null, body: "Body is required" } },
+      { errors: { title: null, body: "Description is required" } },
       { status: 400 }
     );
   }
 
-  const note = await createNote({ title, body, userId });
+  // TODO create first, then the migration
+  const speciesId = 'test';
 
-  return redirect(`/migrations/${note.id}`);
+  const migration = await createMigration({
+    title,
+    description,
+    userId,
+    species: {
+      create: {
+        title: "Test Species,"
+      }
+    }
+  });
+
+  return redirect(`/migrations/${migration.id}`);
 }
 
 export default function NewNotePage() {

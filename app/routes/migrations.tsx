@@ -4,12 +4,12 @@ import { Form, Link, NavLink, Outlet, useLoaderData } from "@remix-run/react";
 
 import { requireUserId } from "~/session.server";
 import { useUser } from "~/utils";
-import { getNoteListItems } from "~/models/note.server";
+import { getMigrationListItems } from "~/models/migration.server";
 
 export async function loader({ request }: LoaderArgs) {
   const userId = await requireUserId(request);
-  const noteListItems = await getNoteListItems({ userId });
-  return json({ noteListItems });
+  const migrationListItems = await getMigrationListItems({ userId });
+  return json({ migrationListItems });
 }
 
 export default function MigrationsPage() {
@@ -41,19 +41,19 @@ export default function MigrationsPage() {
 
           <hr />
 
-          {data.noteListItems.length === 0 ? (
+          {data.migrationListItems.length === 0 ? (
             <p className="p-4">No migrations yet</p>
           ) : (
             <ol>
-              {data.noteListItems.map((note) => (
-                <li key={note.id}>
+              {data.migrationListItems.map((migration) => (
+                <li key={migration.id}>
                   <NavLink
                     className={({ isActive }) =>
                       `block border-b p-4 text-xl ${isActive ? "bg-white" : ""}`
                     }
-                    to={note.id}
+                    to={migration.id}
                   >
-                    🗺 {note.title}
+                    🗺 {migration.title}
                   </NavLink>
                 </li>
               ))}
