@@ -10,12 +10,16 @@ generator client {
 model User {
   id    String @id @default(cuid())
   email String @unique
+  role  String // enum isn't supported by SQLite connector
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  password Password?
-  notes    Note[]
+  password   Password?
+  migrations Migration[]
+
+  location   Place?  @relation(fields: [locationId], references: [id], onDelete: SetNull, onUpdate: SetNull)
+  locationId String?
 }
 
 model Password {
@@ -25,14 +29,68 @@ model Password {
   userId String @unique
 }
 
-model Note {
-  id    String @id @default(cuid())
-  title String
-  body  String
+model Migration {
+  id          String @id @default(cuid())
+  title       String
+  description String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId String
+
+  species     Species @relation(fields: [migrationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  migrationId String  @unique
+
+  steps MigrationStep[]
+}
+
+model MigrationStep {
+  id        String   @id @default(cuid())
+  place     Place    @relation(fields: [placeId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  placeId   String
+  startDate DateTime
+  endDate   DateTime
+
+  migration   Migration @relation(fields: [migrationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  migrationId String
+}
+
+model Species {
+  id          String @id @default(cuid())
+  title       String
+  description String
+  imageUrl    String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  migration    Migration?
+  observations Observation[]
+}
+
+model Place {
+  id        String @id @default(cuid())
+  title     String
+  latitude  Float
+  longitude Float
+
+  parent         Place?          @relation(name: "parent", fields: [parentId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  parentId       String?
+  children       Place[]         @relation("parent")
+  migrationSteps MigrationStep[]
+  users          User[]
+  observations   Observation[]
+}
+
+model Observation {
+  id          String  @id @default(cuid())
+  title       String
+  description String
+  imageUrl    String?
+  species     Species @relation(fields: [speciesId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  speciesId   String
+  place       Place?  @relation(fields: [placeId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  placeId     String?
 }
