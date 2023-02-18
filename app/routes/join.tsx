@@ -5,8 +5,8 @@ import * as React from "react";
 
 import { getUserId, createUserSession } from "~/session.server";
 
-import { createUser, getUserByEmail } from "~/models/user.server";
-import { safeRedirect, validateEmail } from "~/utils";
+import { createUser, getUserByEmail, UserRole } from "~/models/user.server";
+import { enumFromStringValue, safeRedirect, validateEmail } from "~/utils";
 
 export async function loader({ request }: LoaderArgs) {
   const userId = await getUserId(request);
@@ -18,25 +18,33 @@ export async function action({ request }: ActionArgs) {
   const formData = await request.formData();
   const email = formData.get("email");
   const password = formData.get("password");
+  const role = formData.get("role");
   const redirectTo = safeRedirect(formData.get("redirectTo"), "/");
 
   if (!validateEmail(email)) {
     return json(
-      { errors: { email: "Email is invalid", password: null } },
+      { errors: { email: "Email is invalid", password: null, role: null } },
+      { status: 400 }
+    );
+  }
+
+  if (typeof role !== "string" || enumFromStringValue(UserRole, role) === undefined) {
+    return json(
+      { errors: { email: null, password: null, role: "Role is required" } },
       { status: 400 }
     );
   }
 
   if (typeof password !== "string" || password.length === 0) {
     return json(
-      { errors: { email: null, password: "Password is required" } },
+      { errors: { email: null, password: "Password is required", role: null } },
       { status: 400 }
     );
   }
 
   if (password.length < 8) {
     return json(
-      { errors: { email: null, password: "Password is too short" } },
+      { errors: { email: null, password: "Password is too short", role: null } },
       { status: 400 }
     );
   }
@@ -48,13 +56,14 @@ export async function action({ request }: ActionArgs) {
         errors: {
           email: "A user already exists with this email",
           password: null,
+          role: null,
         },
       },
       { status: 400 }
     );
   }
 
-  const user = await createUser(email, password);
+  const user = await createUser(email, password, role as UserRole);
 
   return createUserSession({
     request,
@@ -76,12 +85,15 @@ export default function Join() {
   const actionData = useActionData<typeof action>();
   const emailRef = React.useRef<HTMLInputElement>(null);
   const passwordRef = React.useRef<HTMLInputElement>(null);
+  const roleRef = React.useRef<HTMLInputElement>(null);
 
   React.useEffect(() => {
     if (actionData?.errors?.email) {
       emailRef.current?.focus();
     } else if (actionData?.errors?.password) {
       passwordRef.current?.focus();
+    } else if (actionData?.errors?.role) {
+      roleRef.current?.focus();
     }
   }, [actionData]);
 
@@ -138,6 +150,34 @@ export default function Join() {
               {actionData?.errors?.password && (
                 <div className="pt-1 text-red-700" id="password-error">
                   {actionData.errors.password}
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div>
+            <label
+              htmlFor="role"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Role
+            </label>
+            <div className="mt-1">
+              <div className="flex justify-center">
+                <div className="form-check form-check-inline pr-3">
+                  <input className="form-check-input form-check-input appearance-none rounded-full h-4 w-4 border border-gray-300 bg-white checked:bg-blue-600 checked:border-blue-600 focus:outline-none transition duration-200 mt-1 align-top bg-no-repeat bg-center bg-contain float-left mr-2 cursor-pointer"
+                    ref={roleRef} type="radio" name="role" id="role-citizen" value="CITIZEN" checked />
+                  <label className="form-check-label inline-block text-gray-800" htmlFor="role-citizen">Citizen</label>
+                </div>
+                <div className="form-check form-check-inline">
+                  <input className="form-check-input form-check-input appearance-none rounded-full h-4 w-4 border border-gray-300 bg-white checked:bg-blue-600 checked:border-blue-600 focus:outline-none transition duration-200 mt-1 align-top bg-no-repeat bg-center bg-contain float-left mr-2 cursor-pointer"
+                    type="radio" name="role" id="role-biologist" value="BIOLOGIST" />
+                  <label className="form-check-label inline-block text-gray-800" htmlFor="role-biologist">Biologist</label>
+                </div>
+              </div>
+              {actionData?.errors?.role && (
+                <div className="pt-1 text-red-700" id="role-error">
+                  {actionData.errors.role}
                 </div>
               )}
             </div>
