@@ -27,20 +27,18 @@ export function getMigrationListItems({ userId }: { userId: User["id"] }) {
 export function createMigration({
   title,
   description,
-  speciesId,
+  species,
   userId,
-}: Pick<Migration, "description" | "title" | "speciesId"> & {
+  imageUrl,
+}: Pick<Migration, "description" | "title" | "species" | "imageUrl"> & {
   userId: User["id"];
 }) {
   return prisma.migration.create({
     data: {
       title,
       description,
-      species: {
-        connect: {
-          id: speciesId,
-        },
-      },
+      species,
+      imageUrl,
       user: {
         connect: {
           id: userId,
