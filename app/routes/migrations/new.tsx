@@ -1,44 +1,52 @@
 import type { ActionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { Form, useActionData } from "@remix-run/react";
+import { Form, useActionData, useCatch } from "@remix-run/react";
 import * as React from "react";
 
 import { createMigration } from "~/models/migration.server";
-import { requireUserId } from "~/session.server";
+import { UserRole } from "~/models/user.server";
+import { requireUser, requireUserId } from "~/session.server";
 
 export async function action({ request }: ActionArgs) {
   const userId = await requireUserId(request);
+  const user = await requireUser(request);
+
+  if (user.role !== UserRole.Biologist) {
+    throw new Response("Access denied", { status: 401 });
+  }
 
   const formData = await request.formData();
   const title = formData.get("title");
   const description = formData.get("description");
+  const species = formData.get("species");
 
   if (typeof title !== "string" || title.length === 0) {
     return json(
-      { errors: { title: "Title is required", body: null } },
+      { errors: { title: "Title is required", body: null, species: null } },
       { status: 400 }
     );
   }
 
   if (typeof description !== "string" || description.length === 0) {
     return json(
-      { errors: { title: null, body: "Description is required" } },
+      { errors: { title: null, body: "Description is required", species: null } },
       { status: 400 }
     );
   }
 
-  // TODO create first, then the migration
-  const speciesId = 'test';
+  if (typeof species !== "string" || species.length === 0) {
+    return json(
+      { errors: { title: null, body: null, species: "Species is required" } },
+      { status: 400 }
+    );
+  }
 
   const migration = await createMigration({
     title,
     description,
     userId,
-    species: {
-      create: {
-        title: "Test Species,"
-      }
-    }
+    species,
+    imageUrl: '/img/perched_kingfisher.jpg', // TODO implement image upload
   });
 
   return redirect(`/migrations/${migration.id}`);
@@ -89,7 +97,7 @@ export default function NewNotePage() {
 
       <div>
         <label className="flex w-full flex-col gap-1">
-          <span>Body: </span>
+          <span>Description: </span>
           <textarea
             ref={bodyRef}
             name="body"
@@ -118,4 +126,20 @@ export default function NewNotePage() {
       </div>
     </Form>
   );
+}
+
+export function ErrorBoundary({ error }: { error: Error }) {
+  console.error(error);
+
+  return <div>An unexpected error occurred: {error.message}</div>;
+}
+
+export function CatchBoundary() {
+  const caught = useCatch();
+
+  if (caught.status === 401) {
+    return <div>Access denied - you need the Biologist role to create new migrations</div>;
+  }
+
+  throw new Error(`Unexpected caught response with status: ${caught.status}`);
 }
