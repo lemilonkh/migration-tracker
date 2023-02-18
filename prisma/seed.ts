@@ -27,15 +27,10 @@ async function seed() {
 
   await prisma.migration.create({
     data: {
-      title: "My first note",
-      description: "Hello, world!",
-      species: {
-        create: {
-          title: 'Test Species',
-          description: 'This is a test',
-          imageUrl: '/img/perched_kingfisher.jpg'
-        }
-      },
+      title: "Flight of the Kingfisher",
+      species: "Perched Kingfisher",
+      imageUrl: '/img/perched_kingfisher.jpg',
+      description: "It flies, then it flies some more.",
       user: {
         connect: {
           id: user.id,
