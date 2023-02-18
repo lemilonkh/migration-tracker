@@ -75,3 +75,12 @@ export function enumFromStringValue<T>(enm: { [s: string]: T }, value: string): 
     ? value as unknown as T
     : undefined;
 }
+
+export function formatDate(date: Date | string) {
+  const dateFormat = new Intl.DateTimeFormat('en-US', {month: '2-digit', day: '2-digit'});
+  if (typeof date === 'string') {
+    return dateFormat.format(new Date(date));
+  } else {
+    return dateFormat.format(date);
+  }
+}
