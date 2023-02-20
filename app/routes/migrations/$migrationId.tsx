@@ -1,7 +1,7 @@
 import type { Place } from "@prisma/client";
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { Form, useActionData, useCatch, useLoaderData } from "@remix-run/react";
+import { Form, Link, useActionData, useCatch, useLoaderData } from "@remix-run/react";
 import React from "react";
 import { useState } from "react";
 import Datepicker from "react-tailwindcss-datepicker";
@@ -197,7 +197,14 @@ export default function MigrationDetailsPage() {
 
   return (
     <div>
-      <h3 className="text-2xl font-bold">{data.migration.title}</h3>
+      <h3 className="text-2xl font-bold">
+        {data.migration.title}
+        {data.migration.userId === user.id ? (
+          <Link to="edit" className="text-gray-300/75 ml-3">
+            Edit ✏️
+          </Link>
+        ) : ""}
+      </h3>
       <p className="py-6">{data.migration.description}</p>
       {data.migration.imageUrl ?
         <img
