@@ -5,11 +5,15 @@ import { Form, Link, NavLink, Outlet, useLoaderData } from "@remix-run/react";
 import { requireUserId } from "~/session.server";
 import { useUser } from "~/utils";
 import { getMigrationListItems } from "~/models/migration.server";
+import { useState } from "react";
+import { getPlaces } from "~/models/place.server";
+import Autocomplete from "~/components/autocomplete";
 
 export async function loader({ request }: LoaderArgs) {
   const userId = await requireUserId(request);
   const migrationListItems = await getMigrationListItems({ userId });
-  return json({ migrationListItems });
+  const places = await getPlaces();
+  return json({ migrationListItems, places });
 }
 
 export default function MigrationsPage() {
@@ -35,6 +39,10 @@ export default function MigrationsPage() {
 
       <main className="flex h-full bg-white">
         <div className="h-full w-80 border-r bg-gray-50">
+          <Autocomplete items={data.places} placeholder="Search places..." />
+
+          <hr />
+
           <Link to="new" className="block p-4 text-xl text-blue-500">
             + New Migration
           </Link>
