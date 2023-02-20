@@ -85,6 +85,15 @@ export function formatDate(date: Date | string) {
   }
 }
 
+export function formatFullDate(date: Date | string) {
+  const dateFormat = new Intl.DateTimeFormat('en-US', {year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'});
+  if (typeof date === 'string') {
+    return dateFormat.format(new Date(date));
+  } else {
+    return dateFormat.format(date);
+  }
+}
+
 export function isIsoDate(str: string) {
   if (!/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/.test(str)) return false;
   const d = new Date(str);

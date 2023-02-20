@@ -2,7 +2,7 @@ import type { Place } from "@prisma/client";
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, Link, useActionData, useCatch, useLoaderData } from "@remix-run/react";
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
 import Datepicker from "react-tailwindcss-datepicker";
 import type { DateType } from "react-tailwindcss-datepicker/dist/types";
@@ -11,10 +11,11 @@ import RoundedList from "~/components/rounded-list";
 
 import { createMigrationStep } from "~/models/migration-step.server";
 import { deleteMigration, getMigration } from "~/models/migration.server";
-import { getPlaces } from "~/models/place.server";
+import { createObservation } from "~/models/observation.server";
+import { getPlaceByTitle, getPlaces } from "~/models/place.server";
 import { UserRole } from "~/models/user.server";
 import { getUser, requireUserId } from "~/session.server";
-import { formatDate, isIsoDate, useUser } from "~/utils";
+import { formatDate, formatFullDate, isIsoDate, useUser } from "~/utils";
 
 export async function loader({ request, params }: LoaderArgs) {
   invariant(params.migrationId, "migrationId not found");
@@ -43,6 +44,8 @@ export async function action({ request, params }: ActionArgs) {
   if (method === "delete") {
     await deleteMigration({ userId, id: params.migrationId });
     return redirect("/migrations");
+  } else if (method === "post-observation") {
+    return saveObservation(params.migrationId, form, userId);
   } else {
     return saveMigrationStep(params.migrationId, form);
   }
@@ -72,7 +75,7 @@ async function saveMigrationStep(migrationId: string, form: FormData) {
   }
 
   if (typeof title !== "string" || title.length === 0) {
-    errors.tile = 'Place title is required';
+    errors.title = 'Place title is required';
     return json({ errors }, { status: 400 });
   }
 
@@ -93,6 +96,45 @@ async function saveMigrationStep(migrationId: string, form: FormData) {
     title,
     latitude,
     longitude
+  });
+
+  return json({ errors, migrationStep }, { status: 200 });
+}
+
+async function saveObservation(migrationId: string, form: FormData, userId: string) {
+  const errors: Record<string, string | null> = { title: null, description: null, place: null };
+  const title = form.get("title");
+  const description = form.get("description");
+  const placeTitle = form.get("place");
+
+  if (typeof title !== "string" || title.length === 0) {
+    errors.title = 'Title is required';
+    return json({ errors }, { status: 400 });
+  }
+
+  if (typeof description !== "string" || description.length === 0) {
+    errors.description = 'Description is required';
+    return json({ errors }, { status: 400 });
+  }
+
+  if (typeof placeTitle !== "string" || placeTitle.length === 0) {
+    errors.place = 'Place is required';
+    return json({ errors }, { status: 400 });
+  }
+
+  const place = await getPlaceByTitle(placeTitle);
+  if (!place) {
+    errors.place = 'Place not found';
+    return json({ errors }, { status: 404 });
+  }
+
+  const migrationStep = await createObservation({
+    title,
+    description,
+    imageUrl: '/img/perched_kingfisher.jpg',
+    userId,
+    migrationId,
+    placeId: place.id,
   });
 
   return json({ errors, migrationStep }, { status: 200 });
@@ -191,6 +233,96 @@ function EditSteps() {
   );
 }
 
+function EditObservation() {
+  const [showForm, setShowForm] = useState(false);
+  const actionData = useActionData<typeof action>();
+  useEffect(() => {
+    if (actionData?.errors && Object.values(actionData?.errors).some(error => !!error)) {
+      setShowForm(true);
+    }
+  }, [actionData, setShowForm]);
+
+  return (
+    <div className="pt-4">
+      {showForm ? (
+        <Form method="post" className="flex flex-col w-full md:max-w-md" onSubmit={() => setShowForm(false)}>
+          <input type="hidden" name="method" value="post-observation" />
+          <div className="pb-6 pt-4">
+            <label className="flex w-full flex-col gap-1">
+              <span>Title: </span>
+              <input
+                name="title"
+                className="flex-1 rounded-md border-2 border-blue-500 px-3 text-lg leading-loose"
+                aria-invalid={actionData?.errors?.title ? true : undefined}
+                aria-errormessage={
+                  actionData?.errors?.title ? "title-error" : undefined
+                }
+              />
+            </label>
+            {actionData?.errors?.title && (
+              <div className="pt-1 text-red-700" id="title-error">
+                {actionData.errors.title}
+              </div>
+            )}
+          </div>
+
+          <div>
+            <label className="flex w-full flex-col gap-1">
+              <span>Description: </span>
+              <textarea
+                name="description"
+                rows={8}
+                className="w-full flex-1 rounded-md border-2 border-blue-500 py-2 px-3 text-lg leading-6"
+                aria-invalid={actionData?.errors?.description ? true : undefined}
+                aria-errormessage={
+                  actionData?.errors?.description ? "description-error" : undefined
+                }
+              />
+            </label>
+            {actionData?.errors?.description && (
+              <div className="pt-1 text-red-700" id="description-error">
+                {actionData.errors.description}
+              </div>
+            )}
+          </div>
+
+          <div className="pb-6 pt-4">
+            <label className="flex w-full flex-col gap-1">
+              <span>Place: </span>
+              <input
+                name="place"
+                className="flex-1 rounded-md border-2 border-blue-500 px-3 text-lg leading-loose"
+                aria-invalid={actionData?.errors?.place ? true : undefined}
+                aria-errormessage={
+                  actionData?.errors?.place ? "place-error" : undefined
+                }
+              />
+            </label>
+            {actionData?.errors?.place && (
+              <div className="pt-1 text-red-700" id="place-error">
+                {actionData.errors.place}
+              </div>
+            )}
+          </div>
+
+          <button
+            type="submit"
+            className="rounded bg-emerald-500 py-2 px-4 text-white hover:bg-emerald-600 focus:bg-emerald-400"
+          >
+            Save
+          </button>
+        </Form>
+      ) : (
+        <div>
+          <button onClick={() => setShowForm(true)} className="rounded bg-blue-500 py-2 px-4 text-white hover:bg-blue-600 focus:bg-blue-400">
+            Add new observation
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function MigrationDetailsPage() {
   const data = useLoaderData<typeof loader>();
   const user = useUser();
@@ -201,17 +333,16 @@ export default function MigrationDetailsPage() {
         {data.migration.title}
         {data.migration.userId === user.id ? (
           <Link to="edit" className="text-gray-300/75 ml-3">
-            Edit ✏️
+            ✏️ Edit
           </Link>
         ) : ""}
       </h3>
       <p className="py-6">{data.migration.description}</p>
-      {data.migration.imageUrl ?
+      {data.migration.imageUrl &&
         <img
           src={data.migration.imageUrl}
           alt={data.migration.title}
-          className="rounded-lg w-full md:max-w-md" />
-        : ""
+          className="rounded-lg w-full lg:max-w-lg" />
       }
       <h4 className="text-xl font-bold my-3">Migration steps</h4>
       <RoundedList
@@ -224,8 +355,26 @@ export default function MigrationDetailsPage() {
       {user.role === 'BIOLOGIST' ? (
         <EditSteps />
       ): ''}
+      <h4 className="text-xl font-bold my-3">Observations</h4>
+      <RoundedList
+        entries={data.migration.observations}
+        emptyText="No observations yet"
+        itemClassName=""
+        renderEntry={(entry) => (<>
+          <b>{entry.title}</b>
+          <p>by {entry.user.email} {entry.place && (<>in {entry.place?.title}</>)} at {formatFullDate(entry.createdAt)}</p>
+          <hr />
+          <div className="flex flex-row mt-4">
+            {entry.imageUrl && <img alt={entry.title} src={entry.imageUrl} className="flex-initial rounded-lg w-40 resize mr-4" />}
+            <p className="flex-auto">{entry.description}</p>
+          </div>
+        </>)}
+        getEntryId={(entry) => entry.id}
+      />
+      <EditObservation />
+
       <hr className="my-4" />
-      <Form method="post">
+      <Form method="post" className="mb-4">
         <input type="hidden" name="method" value="delete" />
         <button
           type="submit"

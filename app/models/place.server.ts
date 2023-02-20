@@ -20,3 +20,9 @@ export function getPlace(id: Place["id"]) {
     },
   });
 }
+
+export function getPlaceByTitle(title: Place["title"]) {
+  return prisma.place.findFirst({
+    where: { title },
+  });
+}
