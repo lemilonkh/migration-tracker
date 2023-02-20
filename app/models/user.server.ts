@@ -1,4 +1,4 @@
-import type { Password, User } from "@prisma/client";
+import type { Password, Place, User } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
 import { prisma } from "~/db.server";
@@ -32,6 +32,19 @@ export async function createUser(email: User["email"], password: string, role: U
       },
     },
   });
+}
+
+export async function setUserPlace(id: User["id"], placeId: Place["id"]) {
+  return prisma.user.update({
+    where: { id },
+    data: {
+      location: {
+        connect: {
+          id: placeId,
+        }
+      }
+    },
+  })
 }
 
 export async function deleteUserByEmail(email: User["email"]) {
