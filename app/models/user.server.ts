@@ -79,3 +79,17 @@ export async function verifyLogin(
 
   return userWithoutPassword;
 }
+
+export async function getUsersWithMigrations() {
+  return prisma.user.findMany({
+    include: {
+      location: {
+        include: {
+          migrationSteps: {
+            include: { migration: true },
+          },
+        },
+      },
+    },
+  });
+}
