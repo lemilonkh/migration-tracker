@@ -13,7 +13,7 @@ export default function Index() {
               <img
                 className="h-full w-full object-cover"
                 src="/img/perched_kingfisher.jpg"
-                alt="Sonic Youth On Stage"
+                alt="Perched Kingfisher"
               />
               <div className="absolute inset-0 bg-[color:rgba(254,204,27,0.5)] mix-blend-multiply" />
             </div>
