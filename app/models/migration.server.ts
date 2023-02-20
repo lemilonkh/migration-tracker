@@ -12,7 +12,10 @@ export function getMigration({
       steps: {
         include: {
           place: true,
-        }
+        },
+        orderBy: {
+          startDate: 'asc',
+        },
       },
       user: true,
       observations: {
@@ -29,9 +32,8 @@ export function getMigration({
   });
 }
 
-export function getMigrationListItems({ userId }: { userId: User["id"] }) {
+export function getMigrationListItems() {
   return prisma.migration.findMany({
-    where: { userId },
     select: { id: true, title: true },
     orderBy: { updatedAt: "desc" },
   });
