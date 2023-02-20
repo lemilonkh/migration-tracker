@@ -2,18 +2,18 @@ import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Form, Link, NavLink, Outlet, useLoaderData } from "@remix-run/react";
 
-import { requireUserId } from "~/session.server";
+import { requireUser } from "~/session.server";
 import { useUser } from "~/utils";
 import { getMigrationListItems } from "~/models/migration.server";
-import { useState } from "react";
-import { getPlaces } from "~/models/place.server";
+import { getPlace, getPlaces } from "~/models/place.server";
 import Autocomplete from "~/components/autocomplete";
 
 export async function loader({ request }: LoaderArgs) {
-  const userId = await requireUserId(request);
-  const migrationListItems = await getMigrationListItems({ userId });
+  const user = await requireUser(request);
+  const migrationListItems = await getMigrationListItems({ userId: user.id });
   const places = await getPlaces();
-  return json({ migrationListItems, places });
+  const userLocation = user.locationId ? await getPlace(user.locationId) : null;
+  return json({ migrationListItems, places, userLocation });
 }
 
 export default function MigrationsPage() {
@@ -43,11 +43,23 @@ export default function MigrationsPage() {
 
           <hr />
 
-          <Link to="new" className="block p-4 text-xl text-blue-500">
-            + New Migration
-          </Link>
+          {user.role === "BIOLOGIST" && (
+            <>
+              <Link to="new" className="block p-4 text-xl text-blue-500">
+                ➕ New Migration
+              </Link>
+              <hr />
+            </>
+          )}
 
-          <hr />
+          {data.userLocation && (
+            <>
+              <Link to={`place/${data.userLocation.id}`} className="block p-4 text-xl">
+                🏠 Migrations in {data.userLocation.title}
+              </Link>
+              <hr />
+            </>
+          )}
 
           {data.migrationListItems.length === 0 ? (
             <p className="p-4">No migrations yet</p>
