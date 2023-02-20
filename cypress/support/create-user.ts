@@ -7,7 +7,7 @@
 import { installGlobals } from "@remix-run/node";
 import { parse } from "cookie";
 
-import { createUser } from "~/models/user.server";
+import { createUser, UserRole } from "~/models/user.server";
 import { createUserSession } from "~/session.server";
 
 installGlobals();
@@ -20,7 +20,7 @@ async function createAndLogin(email: string) {
     throw new Error("All test emails must end in @example.com");
   }
 
-  const user = await createUser(email, "myreallystrongpassword");
+  const user = await createUser(email, "myreallystrongpassword", UserRole.Biologist);
 
   const response = await createUserSession({
     request: new Request("test://test"),
