@@ -2,23 +2,24 @@ import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Form, Link, NavLink, Outlet, useLoaderData } from "@remix-run/react";
 
-import { requireUser } from "~/session.server";
-import { useUser } from "~/utils";
+import { getUser } from "~/session.server";
+import { useOptionalUser } from "~/utils";
 import { getMigrationListItems } from "~/models/migration.server";
 import { getPlace, getPlaces } from "~/models/place.server";
 import Autocomplete from "~/components/autocomplete";
 
 export async function loader({ request }: LoaderArgs) {
-  const user = await requireUser(request);
-  const migrationListItems = await getMigrationListItems({ userId: user.id });
+  const user = await getUser(request);
+  const migrationListItems = await getMigrationListItems();
   const places = await getPlaces();
-  const userLocation = user.locationId ? await getPlace(user.locationId) : null;
+
+  const userLocation = user?.locationId ? await getPlace(user.locationId) : null;
   return json({ migrationListItems, places, userLocation });
 }
 
 export default function MigrationsPage() {
   const data = useLoaderData<typeof loader>();
-  const user = useUser();
+  const user = useOptionalUser();
 
   return (
     <div className="flex h-full min-h-screen flex-col">
@@ -26,15 +27,22 @@ export default function MigrationsPage() {
         <h1 className="text-3xl font-bold">
           <Link to=".">🐦 Migration Tracker</Link>
         </h1>
-        <p>{user.email}</p>
-        <Form action="/logout" method="post">
-          <button
-            type="submit"
-            className="rounded bg-slate-600 py-2 px-4 text-blue-100 hover:bg-blue-500 active:bg-blue-600"
-          >
-            Logout
-          </button>
-        </Form>
+        {user && (<>
+          <p>{user.email}</p>
+          <Form action="/logout" method="post">
+            <button
+              type="submit"
+              className="rounded bg-slate-600 py-2 px-4 text-blue-100 hover:bg-blue-500 active:bg-blue-600"
+            >
+              Logout
+            </button>
+          </Form>
+        </>)}
+        {!user && (
+          <Link to="/login" className="rounded bg-slate-600 py-2 px-4 text-blue-100 hover:bg-blue-500 active:bg-blue-600">
+            Login
+          </Link>
+        )}
       </header>
 
       <main className="flex h-full bg-white">
@@ -43,7 +51,7 @@ export default function MigrationsPage() {
 
           <hr />
 
-          {user.role === "BIOLOGIST" && (
+          {user?.role === "BIOLOGIST" && (
             <>
               <Link to="new" className="block p-4 text-xl text-blue-500">
                 ➕ New Migration

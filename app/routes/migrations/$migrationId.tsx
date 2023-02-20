@@ -15,7 +15,7 @@ import { createObservation } from "~/models/observation.server";
 import { getPlaceByTitle, getPlaces } from "~/models/place.server";
 import { UserRole } from "~/models/user.server";
 import { getUser, requireUserId } from "~/session.server";
-import { formatDate, formatFullDate, isIsoDate, useUser } from "~/utils";
+import { formatDate, formatFullDate, isIsoDate, useOptionalUser, useUser } from "~/utils";
 
 export async function loader({ request, params }: LoaderArgs) {
   invariant(params.migrationId, "migrationId not found");
@@ -325,13 +325,13 @@ function EditObservation() {
 
 export default function MigrationDetailsPage() {
   const data = useLoaderData<typeof loader>();
-  const user = useUser();
+  const user = useOptionalUser();
 
   return (
     <div>
       <h3 className="text-2xl font-bold">
         {data.migration.title}
-        {data.migration.userId === user.id ? (
+        {data.migration.userId === user?.id ? (
           <Link to="edit" className="text-gray-300/75 ml-3">
             ✏️ Edit
           </Link>
@@ -352,7 +352,7 @@ export default function MigrationDetailsPage() {
         renderEntry={(entry) => (<>In {entry.place.title} from {formatDate(entry.startDate)} until {formatDate(entry.endDate)}</>)}
         getEntryId={(entry) => entry.id}
       />
-      {user.role === 'BIOLOGIST' ? (
+      {user?.role === 'BIOLOGIST' ? (
         <EditSteps />
       ): ''}
       <h4 className="text-xl font-bold my-3">Observations</h4>
@@ -371,18 +371,20 @@ export default function MigrationDetailsPage() {
         </>)}
         getEntryId={(entry) => entry.id}
       />
-      <EditObservation />
+      {user && <EditObservation />}
 
-      <hr className="my-4" />
-      <Form method="post" className="mb-4">
-        <input type="hidden" name="method" value="delete" />
-        <button
-          type="submit"
-          className="rounded bg-red-500 py-2 px-4 text-white hover:bg-red-600 focus:bg-red-400"
-        >
-          Delete
-        </button>
-      </Form>
+      {user?.id === data.migration.userId && <>
+        <hr className="my-4" />
+        <Form method="post" className="mb-4">
+          <input type="hidden" name="method" value="delete" />
+          <button
+            type="submit"
+            className="rounded bg-red-500 py-2 px-4 text-white hover:bg-red-600 focus:bg-red-400"
+          >
+            Delete
+          </button>
+        </Form>
+      </>}
     </div>
   );
 }
