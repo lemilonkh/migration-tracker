@@ -25,17 +25,29 @@ export function getMigrationStepListItems({ migrationId }: { migrationId: Migrat
   });
 }
 
+type OptionalPick<T, K extends PropertyKey> = Pick<T, Extract<keyof T, K>>;
+
 export function createMigrationStep({
   startDate,
   endDate,
   migrationId,
+  title,
+  latitude,
+  longitude,
 }: Pick<MigrationStep, "startDate" | "endDate"> & {
   migrationId: Migration["id"];
-}, { title, latitude, longitude }: Pick<Place, "title" | "latitude" | "longitude">) {
+} & OptionalPick<Place, "latitude" | "longitude"> & Pick<Place, "title">) {
+  // ensure the same year for each migration step,
+  // since we are only interested in months and days
+  const normalizedStartDate = new Date(startDate);
+  normalizedStartDate.setFullYear(2023);
+  const normalizedEndDate = new Date(endDate);
+  normalizedEndDate.setFullYear(2023);
+  
   return prisma.migrationStep.create({
     data: {
-      startDate,
-      endDate,
+      startDate: normalizedStartDate,
+      endDate: normalizedEndDate,
       place: {
         connectOrCreate: {
           where: {
