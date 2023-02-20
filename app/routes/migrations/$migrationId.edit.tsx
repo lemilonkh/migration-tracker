@@ -6,7 +6,7 @@ import invariant from "tiny-invariant";
 
 import { createMigration, getMigration } from "~/models/migration.server";
 import { UserRole } from "~/models/user.server";
-import { requireUser, requireUserId } from "~/session.server";
+import { requireUser } from "~/session.server";
 
 export async function loader({ request, params }: LoaderArgs) {
   invariant(params.migrationId, "migrationId not found");
@@ -19,11 +19,19 @@ export async function loader({ request, params }: LoaderArgs) {
   return json({ migration });
 }
 
-export async function action({ request }: ActionArgs) {
-  const userId = await requireUserId(request);
+export async function action({ request, params }: ActionArgs) {
   const user = await requireUser(request);
 
   if (user.role !== UserRole.Biologist) {
+    throw new Response("Access denied", { status: 401 });
+  }
+
+  invariant(params.migrationId, "migrationId not found");
+  const existingMigration = await getMigration({ id: params.migrationId });
+  if (!existingMigration) {
+    throw new Response("Not Found", { status: 404 });
+  }
+  if (existingMigration.userId !== user.id) {
     throw new Response("Access denied", { status: 401 });
   }
 
@@ -56,7 +64,7 @@ export async function action({ request }: ActionArgs) {
   const migration = await createMigration({
     title,
     description,
-    userId,
+    userId: user.id,
     species,
     imageUrl: '/img/perched_kingfisher.jpg', // TODO implement image upload
   });
