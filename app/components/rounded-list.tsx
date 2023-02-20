@@ -8,7 +8,7 @@ interface RoundedListProps<T> {
 
 export default function RoundedList<T>(props: RoundedListProps<T>) {
   return (props.entries.length === 0 ? <p>{props.emptyText}</p> : (
-    <ul className="bg-white rounded-lg border border-gray-200 w-full md:max-w-md text-gray-900">
+    <ul className="bg-white rounded-lg border border-gray-200 w-full lg:max-w-lg text-gray-900">
       {props.entries.map((entry, i) => (
         <li
           key={props.getEntryId(entry)}
