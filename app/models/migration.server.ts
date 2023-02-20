@@ -6,10 +6,7 @@ export type { Migration } from "@prisma/client";
 
 export function getMigration({
   id,
-  userId,
-}: Pick<Migration, "id"> & {
-  userId: User["id"];
-}) {
+}: Pick<Migration, "id">) {
   return prisma.migration.findFirst({
     include: {
       steps: {
@@ -19,7 +16,7 @@ export function getMigration({
       },
       user: true,
     },
-    where: { id, userId },
+    where: { id },
   });
 }
 

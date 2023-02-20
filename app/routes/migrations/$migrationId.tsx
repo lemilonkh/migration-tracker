@@ -12,22 +12,21 @@ import { createMigrationStep } from "~/models/migration-step.server";
 import { deleteMigration, getMigration } from "~/models/migration.server";
 import { getPlaces } from "~/models/place.server";
 import { UserRole } from "~/models/user.server";
-import { requireUser, requireUserId } from "~/session.server";
+import { getUser, requireUserId } from "~/session.server";
 import { formatDate, isIsoDate, useUser } from "~/utils";
 
 export async function loader({ request, params }: LoaderArgs) {
-  const userId = await requireUserId(request);
-  const user = await requireUser(request);
   invariant(params.migrationId, "migrationId not found");
 
-  const migration = await getMigration({ userId, id: params.migrationId });
+  const migration = await getMigration({ id: params.migrationId });
   if (!migration) {
     throw new Response("Not Found", { status: 404 });
   }
 
   let places: Place[] = [];
 
-  if (user.role === UserRole.Biologist) {
+  const user = await getUser(request);
+  if (user && user.role === UserRole.Biologist) {
     places = await getPlaces();
   }
 
