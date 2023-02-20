@@ -7,6 +7,7 @@ import { useState } from "react";
 import Datepicker from "react-tailwindcss-datepicker";
 import type { DateType } from "react-tailwindcss-datepicker/dist/types";
 import invariant from "tiny-invariant";
+import RoundedList from "~/components/rounded-list";
 
 import { createMigrationStep } from "~/models/migration-step.server";
 import { deleteMigration, getMigration } from "~/models/migration.server";
@@ -213,15 +214,13 @@ export default function MigrationDetailsPage() {
         : ""
       }
       <h4 className="text-xl font-bold my-3">Migration steps</h4>
-      {data.migration.steps.length === 0 ? <p>No steps yet</p> : (
-        <ul className="bg-white rounded-lg border border-gray-200 w-full md:max-w-md text-gray-900">
-          {data.migration.steps.map((step, i) => (
-            <li key={step.id} className={`px-6 py-2 border-b border-gray-200 w-full ${i === 0 ? 'rounded-t-lg' : ''} ${i === data.migration.steps.length - 1 ? 'rounded-b-lg' : ''}`}>
-              In {step.place.title} from {formatDate(step.startDate)} until {formatDate(step.endDate)}
-            </li>
-          ))}
-        </ul>
-      )}
+      <RoundedList
+        entries={data.migration.steps}
+        emptyText="No steps yet"
+        itemClassName=""
+        renderEntry={(entry) => (<>In {entry.place.title} from {formatDate(entry.startDate)} until {formatDate(entry.endDate)}</>)}
+        getEntryId={(entry) => entry.id}
+      />
       {user.role === 'BIOLOGIST' ? (
         <EditSteps />
       ): ''}
