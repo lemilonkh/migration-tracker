@@ -37,6 +37,7 @@
     "bcryptjs": "^2.4.3",
     "dayjs": "^1.11.7",
     "isbot": "^3.6.5",
+    "nodemailer": "^6.9.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-tailwindcss-datepicker": "^1.4.2",
