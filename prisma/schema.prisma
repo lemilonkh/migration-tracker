@@ -15,11 +15,13 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  password   Password?
-  migrations Migration[]
+  password Password?
 
   location   Place?  @relation(fields: [locationId], references: [id], onDelete: SetNull, onUpdate: SetNull)
   locationId String?
+
+  migrations   Migration[]
+  observations Observation[]
 }
 
 model Password {
@@ -30,7 +32,7 @@ model Password {
 }
 
 model Migration {
-  id          String @id @default(cuid())
+  id          String  @id @default(cuid())
   title       String
   species     String
   description String
@@ -42,7 +44,7 @@ model Migration {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId String
 
-  steps MigrationStep[]
+  steps        MigrationStep[]
   observations Observation[]
 }
 
@@ -59,7 +61,7 @@ model MigrationStep {
 
 model Place {
   id        String @id @default(cuid())
-  title     String
+  title     String @unique
   latitude  Float
   longitude Float
 
@@ -69,15 +71,21 @@ model Place {
   migrationSteps MigrationStep[]
   users          User[]
   observations   Observation[]
+  Migration      Migration[]
 }
 
 model Observation {
-  id          String  @id @default(cuid())
+  id          String   @id @default(cuid())
   title       String
   description String
   imageUrl    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
   migration   Migration @relation(fields: [migrationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   migrationId String
-  place       Place?  @relation(fields: [placeId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  place       Place?    @relation(fields: [placeId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   placeId     String?
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId      String
 }
