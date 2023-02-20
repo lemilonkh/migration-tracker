@@ -15,6 +15,15 @@ export function getMigration({
         }
       },
       user: true,
+      observations: {
+        include: {
+          user: true,
+          place: true,
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      },
     },
     where: { id },
   });
