@@ -71,7 +71,6 @@ model Place {
   migrationSteps MigrationStep[]
   users          User[]
   observations   Observation[]
-  Migration      Migration[]
 }
 
 model Observation {
