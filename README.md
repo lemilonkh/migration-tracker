@@ -1,8 +1,28 @@
 # Migration Tracker
 
-## Used technologies
+## Setup instructions
+- Clone this repository
+- If you want to use notifications, get a [Google App Password](https://support.google.com/accounts/answer/185833) for the email account you want to use
+- Configure .env according to .env.example
+- `npm install`
+- `npm run dev`
+- Visit [http://localhost:3000](http://localhost:3000)
 
-- [Fly app deployment](https://fly.io) with [Docker](https://www.docker.com/)
+## Assumptions
+- One species can only have one migration (to create multiple, create multiple different species with different classifiers in the title)
+
+## Future work
+- Create timeline to show migration over time
+- Create a verification system for biologists so they need to be approved by an admin/ operator
+- Implement image upload
+- Integrate Google Places Autocomplete API or similar geo resolver/ search service
+- Add more validations to migrations (e.g. same place visited twice in a row)
+- More collaborative data model => who can edit migrations created by other users? Discussions, edit history?
+- Add usernames so observations don't have to show the email address of user accounts (PII)
+
+## Used technologies
+- [React](https://reactjs.org/)
+- [Remix](https://remix.run/)
 - Production-ready [SQLite Database](https://sqlite.org)
 - Healthcheck endpoint for [Fly backups region fallbacks](https://fly.io/docs/reference/configuration/#services-http_checks)
 - [GitHub Actions](https://github.com/features/actions) for deploy on merge to production and staging environments
