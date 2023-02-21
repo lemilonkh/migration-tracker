@@ -1,4 +1,5 @@
 # Migration Tracker
+### [Try it out](https://migration-tracker.fly.dev)
 
 ## Setup instructions
 - Clone this repository
@@ -12,13 +13,15 @@
 - One species can only have one migration (to create multiple, create multiple different species with different classifiers in the title)
 
 ## Future work
-- Create timeline to show migration over time
+- Create timeline component to show migration over time (both for migration and place detail pages)
+- Add interactive maps using [react-leaflet](https://react-leaflet.js.org/)
 - Create a verification system for biologists so they need to be approved by an admin/ operator
 - Implement image upload
 - Integrate Google Places Autocomplete API or similar geo resolver/ search service
 - Add more validations to migrations (e.g. same place visited twice in a row)
 - More collaborative data model => who can edit migrations created by other users? Discussions, edit history?
 - Add usernames so observations don't have to show the email address of user accounts (PII)
+- Use autocomplete widget for place name inputs
 
 ## Used technologies
 - [React](https://reactjs.org/)
