@@ -1,5 +1,5 @@
 {
-  "name": "migration-tracker-ce8f",
+  "name": "migration-tracker",
   "private": true,
   "sideEffects": false,
   "scripts": {
