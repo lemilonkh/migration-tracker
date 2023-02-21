@@ -15,7 +15,7 @@ import { createObservation } from "~/models/observation.server";
 import { getPlaceByTitle, getPlaces } from "~/models/place.server";
 import { UserRole } from "~/models/user.server";
 import { getUser, requireUserId } from "~/session.server";
-import { formatDate, formatFullDate, isIsoDate, useOptionalUser, useUser } from "~/utils";
+import { formatDate, formatFullDate, isIsoDate, useOptionalUser } from "~/utils";
 
 export async function loader({ request, params }: LoaderArgs) {
   invariant(params.migrationId, "migrationId not found");

@@ -1,4 +1,3 @@
-import cron from "node-cron";
 import nodemailer from "nodemailer";
 import type SMTPTransport from "nodemailer/lib/smtp-transport";
 import invariant from "tiny-invariant";
