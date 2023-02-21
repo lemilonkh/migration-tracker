@@ -69,7 +69,7 @@ export default function MigrationsPage() {
       </header>
 
       <main className="flex h-full bg-white">
-        <nav className={`h-full w-80 border-r bg-gray-50 transition shadow-xl transform left-0 fixed md:relative overflow-auto ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <nav className={`h-full w-80 border-r bg-gray-50 transition shadow-xl transform left-0 fixed md:relative overflow-auto md:translate-x-0 ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
           <Autocomplete items={data.places} placeholder="Search places..." />
 
           <hr />
