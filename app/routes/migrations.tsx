@@ -28,7 +28,7 @@ export default function MigrationsPage() {
           <Link to=".">🐦 Migration Tracker</Link>
         </h1>
         {user && (<>
-          <p>{user.email}</p>
+          <p className="hidden md:block">{user.email}</p>
           <Form action="/logout" method="post">
             <button
               type="submit"
