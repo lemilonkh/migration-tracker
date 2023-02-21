@@ -30,7 +30,7 @@ describe("smoke tests", () => {
     const testNote = {
       title: faker.lorem.words(1),
       species: faker.animal.bird(),
-      body: faker.lorem.sentences(1),
+      description: faker.lorem.sentences(1),
     };
     cy.login();
 
@@ -43,7 +43,7 @@ describe("smoke tests", () => {
 
     cy.findByRole("textbox", { name: /title/i }).type(testNote.title);
     cy.findByRole("textbox", { name: /species/i }).type(testNote.species);
-    cy.findByRole("textbox", { name: /body/i }).type(testNote.body);
+    cy.findByRole("textbox", { name: /description/i }).type(testNote.description);
     cy.findByRole("button", { name: /save/i }).click();
 
     cy.findByRole("button", { name: /delete/i }).click();
