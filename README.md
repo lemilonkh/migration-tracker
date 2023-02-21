@@ -22,6 +22,7 @@
 - More collaborative data model => who can edit migrations created by other users? Discussions, edit history?
 - Add usernames so observations don't have to show the email address of user accounts (PII)
 - Use autocomplete widget for place name inputs
+- Allow biologists to delete migration steps
 
 ## Used technologies
 - [React](https://reactjs.org/)
@@ -61,10 +62,7 @@
 
 This starts your app in development mode, rebuilding assets on file changes.
 
-The database seed script creates a new user with some data you can use to get started:
-
-- Email: `rachel@remix.run`
-- Password: `racheliscool`
+The database seed script creates a new user with some data you can use to get started.
 
 ## Prisma
 
@@ -91,8 +89,7 @@ After updating the database schema in `prisma/schema.prisma`, run the following 
   to create a migration and keep existing data (e.g. in other environments)
 
 ### Relevant code:
-note
-This is a pretty simple animal migration track app. The main functionality is creating users, logging in and out, and creating and deleting migrations.
+This is a pretty simple animal migration tracking app. The main functionality is creating users, logging in and out, and creating and deleting migrations. Citizens can create observations for migrations at places and biologist can create new migration steps.
 
 - creating users, and logging in and out [./app/models/user.server.ts](./app/models/user.server.ts)
 - user sessions, and verifying them [./app/session.server.ts](./app/session.server.ts)
