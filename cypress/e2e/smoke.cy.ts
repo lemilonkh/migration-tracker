@@ -37,7 +37,7 @@ describe("smoke tests", () => {
     cy.visitAndCheck("/");
 
     cy.findByRole("link", { name: /migrations/i }).click();
-    cy.findByText("No migrations yet");
+    cy.findByText("No migration selected");
 
     cy.findByRole("link", { name: /➕ new migration/i }).click();
 
@@ -48,6 +48,6 @@ describe("smoke tests", () => {
 
     cy.findByRole("button", { name: /delete/i }).click();
 
-    cy.findByText("No migrations yet");
+    cy.findByText("No migration selected");
   });
 });
