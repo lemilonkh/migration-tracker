@@ -7,6 +7,7 @@ import { useOptionalUser } from "~/utils";
 import { getMigrationListItems } from "~/models/migration.server";
 import { getPlace, getPlaces } from "~/models/place.server";
 import Autocomplete from "~/components/autocomplete";
+import { useState } from "react";
 
 export async function loader({ request }: LoaderArgs) {
   const user = await getUser(request);
@@ -20,13 +21,35 @@ export async function loader({ request }: LoaderArgs) {
 export default function MigrationsPage() {
   const data = useLoaderData<typeof loader>();
   const user = useOptionalUser();
+  const [isMenuOpen, setMenuOpen] = useState(true);
+  const genericHamburgerLine = `h-1 w-6 my-1 rounded-full bg-white transition ease transform duration-300`;
 
   return (
     <div className="flex h-full min-h-screen flex-col">
       <header className="flex items-center justify-between bg-slate-800 p-4 text-white">
-        <h1 className="text-3xl font-bold">
-          <Link to=".">🐦 Migration Tracker</Link>
-        </h1>
+        <span className="flex flex-row items-center">
+          <button
+            className="inline-block flex flex-col h-12 w-12 justify-center items-center group md:hidden"
+            onClick={() => setMenuOpen((open) => !open)}
+          >
+            <div className={`${genericHamburgerLine} ${
+              isMenuOpen
+                ? "rotate-45 translate-y-3 opacity-50 group-hover:opacity-100"
+                : "opacity-50 group-hover:opacity-100"
+            }`} />
+            <div className={`${genericHamburgerLine} ${
+              isMenuOpen ? "opacity-0" : "opacity-50 group-hover:opacity-100"
+            }`} />
+            <div className={`${genericHamburgerLine} ${
+              isMenuOpen
+                ? "-rotate-45 -translate-y-3 opacity-50 group-hover:opacity-100"
+                : "opacity-50 group-hover:opacity-100"
+            }`} />
+          </button>
+          <h1 className="text-3xl font-bold">
+            <Link to="." className="inline">🐦 Migration Tracker</Link>
+          </h1>
+        </span>
         {user && (<>
           <p className="hidden md:block">{user.email}</p>
           <Form action="/logout" method="post">
@@ -46,7 +69,7 @@ export default function MigrationsPage() {
       </header>
 
       <main className="flex h-full bg-white">
-        <div className="h-full w-80 border-r bg-gray-50">
+        <nav className={`h-full w-80 border-r bg-gray-50 transition shadow-xl transform left-0 fixed md:relative overflow-auto ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
           <Autocomplete items={data.places} placeholder="Search places..." />
 
           <hr />
@@ -87,7 +110,7 @@ export default function MigrationsPage() {
               ))}
             </ol>
           )}
-        </div>
+        </nav>
 
         <div className="flex-1 p-6">
           <Outlet />
