@@ -82,6 +82,7 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-full flex-col justify-center">
       <div className="mx-auto w-full max-w-md px-8">
+        <h1 className="text-3xl font-bold mb-4 text-center">🐦 Migration Tracker</h1>
         <Form method="post" className="space-y-6">
           <div>
             <label
